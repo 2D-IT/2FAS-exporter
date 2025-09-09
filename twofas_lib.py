@@ -44,12 +44,13 @@ def generate_qr_codes(file_path, output_dir):
 
             # Generate QR code based on QrCode OTPAuth URL
             qr_img = qrcode.make(qr_code.otpauth)
-            output_file = os.path.join(
+            output_file_path = os.path.join(
                 output_dir, f"{qr_code.issuer}-{qr_code.account}.png"
             )
-            qr_img.save(output_file)
+            with open(output_file_path, "wb") as output_file:
+                qr_img.save(output_file)
 
-            print(f"QRCode {qr_code.label} saved as {output_file}")
+            print(f"QRCode {qr_code.label} saved as {output_file_path}")
 
         except KeyError:
             print(
