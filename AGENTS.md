@@ -1,0 +1,111 @@
+# Instructions Agent IA — uv (Astral)
+
+Ce dépôt utilise exclusivement `uv` (Astral) pour gérer l’environnement Python, installer les dépendances et exécuter les scripts. En tant qu’agent, suis strictement les règles et commandes ci‑dessous.
+
+## Règles
+- Toujours utiliser `uv` pour tout: pas de `pip`, pas de `python -m venv`.
+- Ne jamais installer de paquets globalement; utiliser l’environnement local `.venv`.
+- Source de vérité des dépendances: `pyproject.toml` (`[project.dependencies]`).
+- Pour la production, synchroniser un `requirements.txt` figé depuis l’environnement.
+- En environnement sans réseau, utiliser le mode hors‑ligne de `uv`.
+
+## Pré‑requis
+- `uv` disponible dans le PATH (`uv --version`).
+- Python installé (uv gère l’environnement; aucune activation manuelle n’est requise).
+
+## Préparer l’environnement
+Dans la racine du projet:
+
+1) Créer (ou réutiliser) l’environnement local
+```
+uv venv .venv
+```
+
+2) Installer les dépendances depuis `pyproject.toml` (source de vérité)
+```
+uv pip install -e .
+```
+Si `pyproject.toml` est absent (ex: clone minimal), utiliser le fallback ci‑dessous.
+
+Mode sans réseau (si nécessaire et si les artefacts sont déjà en cache):
+```
+uv pip install --offline -e .
+```
+
+Astuce: pour repartir propre, on peut régénérer l’environnement
+```
+rm -rf .venv && uv venv .venv && uv pip install -e .
+```
+
+### Installation auto‑détectée (pyproject d’abord, sinon fallback)
+Copier/coller cette commande pour une installation robuste:
+```
+uv venv .venv && \
+([ -f pyproject.toml ] && uv pip install -e . || uv pip install -r requirements.txt)
+```
+
+## Fallback sans `pyproject.toml`
+Utiliser cette section uniquement si le dépôt cloné ne contient pas `pyproject.toml`.
+
+- Installation depuis `requirements.txt` (en ligne):
+```
+uv pip install -r requirements.txt
+```
+
+- Installation hors‑ligne (artefacts déjà en cache):
+```
+uv pip install --offline -r requirements.txt
+```
+
+## Exécuter les scripts
+Script principal: `main.py`
+
+Exécution standard (aucune activation d’environnement requise):
+```
+uv run python main.py <backup_2fas.json> <dossier_sortie>
+```
+
+Exemples:
+```
+uv run python main.py ~/Downloads/2fas-backup.json ./qrcodes
+uv run python main.py data/backup.json export/
+```
+
+## Gérer les dépendances
+- Ajouter / modifier une dépendance: éditer `pyproject.toml` dans `[project.dependencies]`, puis réinstaller
+```
+uv pip install -e .
+```
+
+- Synchroniser `requirements.txt` (pour prod): figer les versions résolues
+```
+uv pip freeze --exclude-editable > requirements.txt
+```
+
+- Mettre à jour une version précise (ex: qrcode)
+```
+# 1) éditer pyproject.toml (ex: "qrcode==7.4.2")
+# 2) réinstaller et figer
+uv pip install -e .
+uv pip freeze --exclude-editable > requirements.txt
+```
+
+- En contexte hors‑ligne (CI restreinte): ne pas modifier les deps; seulement exécuter
+```
+uv run --offline python main.py ...
+```
+
+## Option: exécution par shebang (facultatif)
+Pour lancer directement un script avec `uv`, on peut ajouter en première ligne du fichier script:
+```
+#!/usr/bin/env -S uv run python
+```
+Puis rendre le fichier exécutable (`chmod +x`) et lancer `./main.py ...`.
+
+## Références du dépôt
+- Dépendances source: `pyproject.toml` (`[project.dependencies]`)
+- Dépendances figées prod: `requirements.txt`
+- Point d’entrée: `main.py` (script console: `otp-export`)
+- Environnement local: `.venv`
+
+Respecte ces conventions pour toutes les tâches futures: installation, exécution, tests, et maintenance des dépendances se font via `uv`.
