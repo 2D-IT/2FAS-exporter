@@ -37,6 +37,16 @@ Astuce: pour repartir propre, on peut régénérer l’environnement
 rm -rf .venv && uv venv .venv && uv pip install -e .
 ```
 
+### Alternative tout‑en‑un
+`uv sync` crée `.venv` et installe depuis `pyproject.toml` (utilise `uv.lock` s’il existe):
+```
+uv sync
+```
+Mode hors‑ligne:
+```
+uv sync --offline
+```
+
 ### Installation auto‑détectée (pyproject d’abord, sinon fallback)
 Copier/coller cette commande pour une installation robuste:
 ```
@@ -65,6 +75,11 @@ Exécution standard (aucune activation d’environnement requise):
 uv run python main.py <backup_2fas.json> <dossier_sortie>
 ```
 
+Ou via le script console exposé par le projet:
+```
+uv run otp-export <backup_2fas.json> <dossier_sortie>
+```
+
 Exemples:
 ```
 uv run python main.py ~/Downloads/2fas-backup.json ./qrcodes
@@ -77,10 +92,31 @@ uv run python main.py data/backup.json export/
 uv pip install -e .
 ```
 
+- Ne pas éditer `requirements.txt` à la main; il est généré depuis l’environnement résolu.
+
 - Synchroniser `requirements.txt` (pour prod): figer les versions résolues
 ```
 uv pip freeze --exclude-editable > requirements.txt
 ```
+
+## Lockfile (optionnel)
+- **But**: figer les versions exactes pour des installations reproductibles via `uv`.
+- **Fichier**: `uv.lock` (à committer dans git).
+
+Commandes utiles
+```
+# Créer/mettre à jour le lock
+uv sync
+
+# Forcer l'utilisation du lock (CI/production)
+uv sync --frozen
+
+# Idem, en mode hors-ligne
+uv sync --frozen --offline
+```
+Notes
+- Si `uv.lock` est manquant ou obsolète, `--frozen` échoue (c’est voulu).
+- `requirements.txt` reste utilisé pour les environnements sans `uv` ou en fallback.
 
 - Mettre à jour une version précise (ex: qrcode)
 ```
