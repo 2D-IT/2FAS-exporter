@@ -138,10 +138,17 @@ Pour lancer directement un script avec `uv`, on peut ajouter en première ligne 
 ```
 Puis rendre le fichier exécutable (`chmod +x`) et lancer `./main.py ...`.
 
+## Outils MCP disponibles
+Le projet dispose d'outils MCP (Model Context Protocol) pour l'intégration IDE:
+- `mcp__ide__getDiagnostics`: obtenir les diagnostics/erreurs de l'IDE
+- `mcp__ide__executeCode`: exécuter du code Python dans le kernel Jupyter
+
+Ces outils permettent une meilleure intégration avec l'environnement de développement.
+
 ## Références du dépôt
 - Dépendances source: `pyproject.toml` (`[project.dependencies]`)
 - Dépendances figées prod: `requirements.txt`
-- Point d’entrée: `main.py` (script console: `otp-export`)
+- Point d'entrée: `main.py` (script console: `otp-export`)
 - Environnement local: `.venv`
 
 Respecte ces conventions pour toutes les tâches futures: installation, exécution, tests, et maintenance des dépendances se font via `uv`.
