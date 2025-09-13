@@ -9,23 +9,23 @@ Référence opérations et dépendances: voir `AGENTS.md`.
 
 ## Organisation du dépôt
 - `main.py`: CLI principal. Prend `backup_file` (JSON) et `destination_folder`. Crée le dossier si besoin, gère erreurs basiques, appelle `generate_qr_codes`.
-- `twofas_lib.py`: logique de génération; classes `TOTPEntry` et `HOTPEntry` importées de `otpcode`, `generate_qr_codes(file_path, output_dir)` crée automatiquement le dossier de sortie, itère `data["services"]` et écrit `{issuer}-{account}.png` via `with open()` pour éviter les warnings de type.
-- `otpcode.py`: classes `TOTPEntry` et `HOTPEntry` pour construire les URLs `otpauth://...`.
+- `twofas_lib.py`: logique de génération; classes `TOTPEntry` et `HOTPEntry` importées de `otpcode`, `generate_qr_codes(file_path, output_dir)` crée automatiquement le dossier de sortie, itère `data["services"]` et écrit des fichiers PNG avec noms assainis via `sanitize_filename()` et `generate_safe_filename()`.
+- `otpcode.py`: classes `TOTPEntry` et `HOTPEntry` pour construire les URLs `otpauth://...` avec validation robuste.
 - `pyproject.toml`: métadonnées projet (nom: `otp-exporter`), dépendances, script console `otp-export`.
 - `requirements.txt`: versions figées pour la prod et fallback si `pyproject.toml` absent.
 - `AGENTS.md`: règles et procédures opérationnelles (uv, installation, sync, offline, fallback, outils MCP).
 
 ## Flux haut niveau
 - Entrée: fichier JSON de sauvegarde 2FAS.
-- Traitement: construction d’URL otpauth pour chaque service, génération PNG via `qrcode`/Pillow.
-- Sortie: fichiers PNG nommés `{issuer}-{account}.png` dans le dossier cible.
+- Traitement: construction d'URL otpauth pour chaque service, génération PNG via `qrcode`/Pillow.
+- Sortie: fichiers PNG avec noms assainis (format `{issuer_safe}_{account_safe}.png`) dans le dossier cible.
 
 ## Hypothèses sur le JSON 2FAS
 - Clé racine: `services` (liste).
 - Chaque service contient `secret` et un objet `otp` avec au minimum `tokenType`; champs optionnels: `issuer` (fallback `name`), `digits` (def 6), `period` (def 30), `algorithm` (def SHA1), `account` (def "").
 
-## Points d’attention
-- Nommage des fichiers: `issuer` et `account` peuvent contenir des caractères à assainir si besoin (amélioration future).
+## Points d'attention
+- Nommage des fichiers: RÉSOLU - implémentation complète de sanitization avec `sanitize_filename()` pour gérer caractères interdits, noms réservés Windows, accents, espaces, et limitations de longueur.
 - Erreurs gérées sommairement; envisager logs plus détaillés et options CLI (ex: verbose, format alternative).
 
 ## Historique / Décisions
@@ -34,6 +34,7 @@ Référence opérations et dépendances: voir `AGENTS.md`.
 - Licence MIT ajoutée (`LICENSE`).
 - Correction de `twofas_lib.py`: ajout de création automatique du répertoire de sortie et utilisation de `with open()` pour la sauvegarde des QR codes (correction des warnings de type VSCode/Pylance).
 - Intégration des outils MCP pour diagnostics IDE et exécution de code.
+- Implémentation robuste de sanitization des noms de fichiers: `sanitize_filename()` et `generate_safe_filename()` pour gérer caractères interdits, noms réservés Windows, normalisation Unicode, et limitations de longueur. Correction critique pour éviter les erreurs `FileNotFoundError` sur noms problématiques.
 
 ## Où trouver les infos d’exécution
 - Procédures d’installation, dépendances et commandes: `AGENTS.md`.
