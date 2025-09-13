@@ -120,7 +120,8 @@ class OTPEntry(ABC):
         # Validation de l'algorithme
         if self.algorithm not in OTPConfig.VALID_ALGORITHMS:
             raise InvalidParameterError(
-                "algorithm", self.algorithm,                f"L'algorithme doit être dans {OTPConfig.VALID_ALGORITHMS}"
+                "algorithm", self.algorithm,
+                f"L'algorithme doit être dans {OTPConfig.VALID_ALGORITHMS}"
             )
     
     def _is_valid_base32(self, secret: str) -> bool:
@@ -147,7 +148,8 @@ class OTPEntry(ABC):
             base64.b32decode(padded_secret)
             return True
         except Exception:
-            return False    
+            return False
+
     def _generate_label(self) -> str:
         """
         Génère le label pour l'URL otpauth.
@@ -178,7 +180,8 @@ class OTPEntry(ABC):
     @abstractmethod
     def to_dict(self) -> Dict[str, Any]:
         """Convertit l'entrée OTP en dictionnaire."""
-        pass    
+        pass
+
     @property
     def otpauth(self) -> str:
         """
@@ -206,7 +209,8 @@ class OTPEntry(ABC):
         params_str = "&".join([f"{k}={quote(str(v))}" for k, v in params.items()])
         encoded_label = quote(self.label)
         
-        return f"otpauth://{self.token_type}/{encoded_label}?{params_str}"    
+        return f"otpauth://{self.token_type}/{encoded_label}?{params_str}"
+
     def __str__(self) -> str:
         """Représentation textuelle de l'entrée OTP."""
         return f"{self.__class__.__name__}(issuer='{self.issuer}', account='{self.account}')"

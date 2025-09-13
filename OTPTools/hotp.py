@@ -88,7 +88,8 @@ class HOTPEntry(OTPEntry):
     
     def increment_counter(self, steps: int = 1) -> int:
         """
-        Incrémente le compteur HOTP.        
+        Incrémente le compteur HOTP.
+
         Args:
             steps: Nombre d'incrémentations (défaut: 1)
         
@@ -118,7 +119,8 @@ class HOTPEntry(OTPEntry):
             
         Raises:
             InvalidParameterError: Si new_value < 0
-        """        if new_value < 0:
+        """
+        if new_value < 0:
             raise InvalidParameterError(
                 "counter", new_value,
                 "Le compteur doit être positif ou nul"

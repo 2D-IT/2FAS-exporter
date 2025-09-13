@@ -57,3 +57,21 @@ class OTPFactory:
             return TOTPEntry(
                 issuer=data["issuer"],
                 secret=data["secret"],
+                account=data.get("account"),
+                digits=data.get("digits", OTPConfig.DEFAULT_DIGITS),
+                period=data.get("period", OTPConfig.DEFAULT_PERIOD),
+                algorithm=data.get("algorithm", OTPConfig.DEFAULT_ALGORITHM)
+            )
+
+        elif otp_type == "hotp":
+            return HOTPEntry(
+                issuer=data["issuer"],
+                secret=data["secret"],
+                account=data.get("account"),
+                digits=data.get("digits", OTPConfig.DEFAULT_DIGITS),
+                counter=data.get("counter", 0),
+                algorithm=data.get("algorithm", OTPConfig.DEFAULT_ALGORITHM)
+            )
+
+        else:
+            raise ParseError(f"Type OTP non supporté: {otp_type}")

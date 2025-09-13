@@ -9,8 +9,7 @@ Référence opérations et dépendances: voir `AGENTS.md`.
 
 ## Organisation du dépôt
 - `main.py`: CLI principal. Prend `backup_file` (JSON) et `destination_folder`. Crée le dossier si besoin, gère erreurs basiques, appelle `generate_qr_codes`.
-- `twofas_lib.py`: logique de génération; classes `TOTPEntry` et `HOTPEntry` importées de `otpcode`, `generate_qr_codes(file_path, output_dir)` crée automatiquement le dossier de sortie, itère `data["services"]` et écrit des fichiers PNG avec noms assainis via `sanitize_filename()` et `generate_safe_filename()`.
-- `otpcode.py`: classes `TOTPEntry` et `HOTPEntry` pour construire les URLs `otpauth://...` avec validation robuste.
+- `twofas_lib.py`: logique de génération; classes `TOTPEntry` et `HOTPEntry` importées depuis le module `OTPTools`, `generate_qr_codes(file_path, output_dir)` crée automatiquement le dossier de sortie, itère `data["services"]` et écrit des fichiers PNG avec noms assainis via `sanitize_filename()` et `generate_safe_filename()`.
 - `pyproject.toml`: métadonnées projet (nom: `otp-exporter`), dépendances, script console `otp-export`.
 - `requirements.txt`: versions figées pour la prod et fallback si `pyproject.toml` absent.
 - `AGENTS.md`: règles et procédures opérationnelles (uv, installation, sync, offline, fallback, outils MCP).
