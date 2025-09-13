@@ -4,7 +4,7 @@ import os
 import re
 import unicodedata
 
-from otpcode import TOTPEntry, HOTPEntry
+from OTPTools import TOTPEntry, HOTPEntry
 
 
 def sanitize_filename(filename):
