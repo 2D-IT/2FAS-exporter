@@ -38,8 +38,7 @@ from .base import BaseBackupProcessor
 from .twofas import TwoFASProcessor
 
 # Import des classes OTP du module parent
-from ..totp import TOTPEntry
-from ..hotp import HOTPEntry
+from OTPTools import TOTPEntry, HOTPEntry
 
 
 class BackupProcessorFactory:

@@ -86,6 +86,23 @@ uv run python main.py ~/Downloads/2fas-backup.json ./qrcodes
 uv run python main.py data/backup.json export/
 ```
 
+## Utilitaires (maintenance)
+- Nettoyer les dossiers `__pycache__` (et optionnellement les fichiers `.pyc`):
+```
+uv run clean-pycache [path] [--pyc] [--include-venv] [-n] [-v]
+```
+- Exemples:
+```
+# Nettoyer à la racine du dépôt (ignore .venv)
+uv run clean-pycache .
+
+# Simulation + verbose
+uv run clean-pycache -n -v
+
+# Inclure .pyc/.pyo et le dossier .venv
+uv run clean-pycache --pyc --include-venv
+```
+
 ## Gérer les dépendances
 - Ajouter / modifier une dépendance: éditer `pyproject.toml` dans `[project.dependencies]`, puis réinstaller
 ```
@@ -170,6 +187,10 @@ Module traitement backups multi-applications:
 - Import: `from BackupProcessors import BackupProcessorFactory`
 - Usage: auto-détection et conversion formats → OTP
 - Formats supportés: .2fas, .zip, .json (extensible)
+
+### Scripts console exposés
+- `otp-export`: lance l'export des QR codes (`main:main`).
+- `clean-pycache`: nettoie les caches Python (`tools.clean_pycache:clean_pycache_main`).
 
 #### Exemples d'utilisation modules
 ```python

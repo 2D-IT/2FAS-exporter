@@ -16,6 +16,12 @@ license = { file = "LICENSE" }
 
 [project.scripts]
 otp-export = "main:main"
+clean-pycache = "tools.clean_pycache:clean_pycache_main"
 
 [tool.setuptools]
 py-modules = ["main", "twofas_lib"]
+
+[tool.setuptools.packages.find]
+# Package the local packages so they are importable after installation
+include = ["OTPTools*", "BackupProcessors*", "tools*"]
+exclude = ["tests*"]

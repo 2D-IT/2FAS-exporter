@@ -12,9 +12,8 @@ from typing import List, Union, Dict, Any, Optional
 
 from .base import BaseBackupProcessor
 from .exceptions import UnsupportedFormatError, CorruptedBackupError
-from ..totp import TOTPEntry
-from ..hotp import HOTPEntry
-from ..exceptions import OTPError
+from OTPTools import TOTPEntry, HOTPEntry
+from OTPTools.exceptions import OTPError
 
 
 class TwoFASProcessor(BaseBackupProcessor):

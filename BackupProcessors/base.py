@@ -7,8 +7,7 @@ tous les processors spécialisés pour assurer une utilisation uniforme.
 
 from abc import ABC, abstractmethod
 from typing import List, Union, Dict, Any
-from ..totp import TOTPEntry
-from ..hotp import HOTPEntry
+from OTPTools import TOTPEntry, HOTPEntry
 
 
 class BaseBackupProcessor(ABC):

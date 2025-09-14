@@ -27,7 +27,9 @@ Référence opérations et dépendances: voir `AGENTS.md`.
     │   ├── hotp.py               # Implémentation HOTP
     │   └── totp.py               # Implémentation TOTP
     │
-    └── BackupProcessors/          # Module BackupProcessors
+    ├── BackupProcessors/          # Module BackupProcessors
+    │
+    └── tools/                     # Utilitaires dev (clean-pycache)
         ├── __init__.py           # Factory et exports
         ├── base.py               # Interface BaseBackupProcessor
         ├── exceptions.py         # Exceptions spécialisées
@@ -40,6 +42,9 @@ Référence opérations et dépendances: voir `AGENTS.md`.
 - `main.py`: CLI principal. Prend `backup_file` (JSON) et `destination_folder`. Crée le dossier si besoin, gère erreurs basiques, appelle `generate_qr_codes`.
 - `twofas_lib.py`: logique de génération; classes `TOTPEntry` et `HOTPEntry` importées depuis le module `OTPTools`, `generate_qr_codes(file_path, output_dir)` crée automatiquement le dossier de sortie, itère `data["services"]` et écrit des fichiers PNG avec noms assainis via `sanitize_filename()` et `generate_safe_filename()`.
 
+#### Utilitaires dev
+- `tools/clean_pycache.py`: CLI `clean-pycache` pour supprimer les dossiers `__pycache__` (et optionnellement `.pyc/.pyo`).
+
 #### OTPTools (~705 lignes)
 Module core pour la gestion des tokens OTP avec classes standardisées et validation.
 
@@ -51,7 +56,7 @@ Module pour traiter différents formats de backup 2FA et les convertir vers des 
 - **Formats**: .2fas, .zip, .json extensible
 
 #### Configuration
-- `pyproject.toml`: métadonnées projet (nom: `otp-exporter`), dépendances, script console `otp-export`.
+- `pyproject.toml`: métadonnées projet (nom: `otp-exporter`), dépendances, scripts console `otp-export` et `clean-pycache`. Packaging via `setuptools` incluant `OTPTools`, `BackupProcessors` et `tools`.
 - `requirements.txt`: versions figées pour la prod et fallback si `pyproject.toml` absent.
 - `AGENTS.md`: règles et procédures opérationnelles (uv, installation, sync, offline, fallback, outils MCP).
 
@@ -90,6 +95,9 @@ Module pour traiter différents formats de backup 2FA et les convertir vers des 
 - Intégration des outils MCP pour diagnostics IDE et exécution de code
 - Implémentation robuste de sanitization des noms de fichiers: `sanitize_filename()` et `generate_safe_filename()` pour gérer caractères interdits, noms réservés Windows, normalisation Unicode, et limitations de longueur. Correction critique pour éviter les erreurs `FileNotFoundError` sur noms problématiques
 
+- Ajout d'un utilitaire de nettoyage: `clean-pycache` (module `tools/`) exposé via `uv run clean-pycache`.
+- Correction des imports de `BackupProcessors` pour référencer `OTPTools` et publication des packages via `pyproject.toml` (`[tool.setuptools.packages.find]`).
+
 ### Statistiques globales
 - **Total projet**: ~1177 lignes de code
 - **Tests de cohérence**: ✅ Imports relatifs, Factory, instanciation, gestion d'erreurs
@@ -98,4 +106,3 @@ Module pour traiter différents formats de backup 2FA et les convertir vers des 
 ## Où trouver les infos d’exécution
 - Procédures d’installation, dépendances et commandes: `AGENTS.md`.
 - Versions figées actuelles: `requirements.txt`.
-
