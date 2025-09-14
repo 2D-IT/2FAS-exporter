@@ -1,8 +1,10 @@
 import os
 import argparse
+import logging
 from twofas_lib import generate_qr_codes
 
 def main():
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
     parser = argparse.ArgumentParser(
         description="Export QR codes from a 2FAS JSON backup file."
     )
@@ -21,7 +23,7 @@ def main():
 
     # Vérification de l'existence du fichier source
     if not os.path.isfile(args.backup_file):
-        print(f"❌ Error: Source file '{args.backup_file}' does not exist.")
+        logging.error(f"❌ Source file '{args.backup_file}' does not exist.")
         exit(1)
 
     # Création du répertoire de destination s'il n'existe pas
@@ -29,13 +31,15 @@ def main():
         try:
             os.makedirs(args.destination_folder)
         except Exception as e:
-            print(f"❌ Failed to create destination directory: {e}")
+            logging.error(f"❌ Failed to create destination directory: {e}")
             exit(1)
 
     try:
         generate_qr_codes(args.backup_file, args.destination_folder)
     except Exception as e:
-        print(f"❌ An unexpected error occurred during QR code generation: {e}")
+        logging.error(
+            f"❌ An unexpected error occurred during QR code generation: {e}"
+        )
         exit(1)
 
 if __name__ == "__main__":

@@ -3,6 +3,7 @@ import qrcode
 import os
 import re
 import unicodedata
+import logging
 
 from OTPTools import TOTPEntry, HOTPEntry
 
@@ -86,7 +87,7 @@ def generate_qr_codes(file_path,output_dir):
 
     # Parse json file and generate QR codes for each service
     # Count number of services
-    print(f"Generating QR codes for {len(data['services'])} services")
+    logging.info(f"Generating QR codes for {len(data['services'])} services")
     for service in data["services"]:
         # Generate TOTPCode object
         try:
@@ -120,9 +121,11 @@ def generate_qr_codes(file_path,output_dir):
             with open(output_file, "wb") as f:
                 qr_img.save(f)
 
-            print(f"TOTPCode {qr_code.label} saved as {output_file}")
+            logging.info(f"TOTPCode {qr_code.label} saved as {output_file}")
             
         except KeyError:
-            print(f"JSON file for {service['otp']['label']} is not properly formatted or a value is missing")
+            logging.error(
+                f"JSON file for {service['otp']['label']} is not properly formatted or a value is missing"
+            )
                  
 # Test commit
