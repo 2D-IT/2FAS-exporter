@@ -145,10 +145,49 @@ Le projet dispose d'outils MCP (Model Context Protocol) pour l'intégration IDE:
 
 Ces outils permettent une meilleure intégration avec l'environnement de développement.
 
+## Modules et architecture
+
+### Structure du projet
+```
+└── 2FAS-exporter/
+    ├── main.py                     # Point d'entrée CLI
+    ├── twofas_lib.py              # Logique génération QR
+    ├── OTPTools/                  # Module OTP core (~705 lignes)
+    └── BackupProcessors/          # Module traitement backups (~472 lignes)
+```
+
+### Modules disponibles
+
+#### OTPTools
+Module core standardisé pour tokens OTP:
+- Classes: `TOTPEntry`, `HOTPEntry`, `OTPFactory`
+- Import: `from OTPTools import TOTPEntry, HOTPEntry`
+- Usage: validation, génération otpauth URLs
+
+#### BackupProcessors
+Module traitement backups multi-applications:
+- Classes: `TwoFASProcessor`, `BackupProcessorFactory`
+- Import: `from BackupProcessors import BackupProcessorFactory`
+- Usage: auto-détection et conversion formats → OTP
+- Formats supportés: .2fas, .zip, .json (extensible)
+
+#### Exemples d'utilisation modules
+```python
+# OTPTools - création directe
+from OTPTools import TOTPEntry
+totp = TOTPEntry(issuer="GitHub", secret="JBSWY3DPEHPK3PXP")
+
+# BackupProcessors - auto-détection
+from BackupProcessors import BackupProcessorFactory
+factory = BackupProcessorFactory()
+entries = factory.process_backup('backup.2fas')
+```
+
 ## Références du dépôt
 - Dépendances source: `pyproject.toml` (`[project.dependencies]`)
 - Dépendances figées prod: `requirements.txt`
 - Point d'entrée: `main.py` (script console: `otp-export`)
 - Environnement local: `.venv`
+- Modules: `OTPTools/` (core), `BackupProcessors/` (traitement)
 
 Respecte ces conventions pour toutes les tâches futures: installation, exécution, tests, et maintenance des dépendances se font via `uv`.
