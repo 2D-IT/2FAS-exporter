@@ -18,4 +18,4 @@ license = { file = "LICENSE" }
 otp-export = "main:main"
 
 [tool.setuptools]
-py-modules = ["main", "twofas_lib"]
+packages = ["OTPTools", "BackupProcessors"]
