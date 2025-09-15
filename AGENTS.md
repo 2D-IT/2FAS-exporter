@@ -83,7 +83,8 @@ uv run otp-export <backup_2fas.json> <dossier_sortie>
 Exemples:
 ```
 uv run python main.py ~/Downloads/2fas-backup.json ./qrcodes
-uv run python main.py data/backup.json export/
+uv run python main.py exemple/2fas-backup-20250915150420.2fas exports/
+uv run otp-export exemple/2fas-backup-20250915150420.2fas exports/
 ```
 
 ## Utilitaires (maintenance)
@@ -206,9 +207,11 @@ entries = factory.process_backup('backup.2fas')
 
 ## Références du dépôt
 - Dépendances source: `pyproject.toml` (`[project.dependencies]`)
-- Dépendances figées prod: `requirements.txt`
+- Dépendances figées prod: `requirements.txt` (versions actuelles: Pillow 11.3.0, qrcode 8.2)
 - Point d'entrée: `main.py` (script console: `otp-export`)
 - Environnement local: `.venv`
 - Modules: `OTPTools/` (core), `BackupProcessors/` (traitement)
+- Exemples de test: `exemple/` (fichier sample `.2fas`)
+- Sortie par défaut: `exports/` (QR codes générés)
 
 Respecte ces conventions pour toutes les tâches futures: installation, exécution, tests, et maintenance des dépendances se font via `uv`.
