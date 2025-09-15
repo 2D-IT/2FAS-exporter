@@ -13,7 +13,8 @@ from typing import List, Union, Dict, Any, Optional
 from .base import BaseBackupProcessor
 from .exceptions import UnsupportedFormatError, CorruptedBackupError
 from OTPTools import TOTPEntry, HOTPEntry
-from OTPTools.exceptions import OTPError
+from OTPTools.factory import OTPFactory
+from OTPTools.exceptions import OTPError, ParseError
 
 
 class TwoFASProcessor(BaseBackupProcessor):
@@ -161,46 +162,22 @@ class TwoFASProcessor(BaseBackupProcessor):
         return entries
 
     def _create_otp_entry_from_service(self, service: Dict) -> Optional[Union[TOTPEntry, HOTPEntry]]:
-        """Crée une entrée OTP à partir d'un service 2FAS."""
+        """Crée une entrée OTP à partir d'un service 2FAS en utilisant OTPFactory."""
         if not isinstance(service, dict):
             return None
 
-        # Extraction des champs 2FAS (à adapter selon le format réel)
-        secret = service.get('secret', '')
-        issuer = service.get('name', '') or service.get('issuer', '')
-        account = service.get('account', '') or service.get('label', '')
-
-        if not secret or not issuer:
-            return None
-
-        # Paramètres optionnels avec valeurs par défaut
-        digits = service.get('digits', 6)
-        algorithm = service.get('algorithm', 'SHA1').upper()
-        otp_type = service.get('type', 'totp').lower()
-
         try:
-            if otp_type == 'hotp':
-                counter = service.get('counter', 0)
-                return HOTPEntry(
-                    issuer=issuer,
-                    secret=secret,
-                    account=account,
-                    digits=digits,
-                    counter=counter,
-                    algorithm=algorithm
-                )
-            else:  # totp par défaut
-                period = service.get('period', 30)
-                return TOTPEntry(
-                    issuer=issuer,
-                    secret=secret,
-                    account=account,
-                    digits=digits,
-                    period=period,
-                    algorithm=algorithm
-                )
-        except OTPError as e:
-            print(f"Erreur de validation OTP pour {issuer}: {e}")
+            # Délègue entièrement la création à OTPFactory
+            return OTPFactory.create_from_2fas(service)
+        except (OTPError, ParseError) as e:
+            # Log l'erreur mais continue avec les autres entrées
+            service_name = service.get('name', 'service inconnu')
+            print(f"Erreur lors de la création OTP pour {service_name}: {e}")
+            return None
+        except Exception as e:
+            # Catch any unexpected errors
+            service_name = service.get('name', 'service inconnu')
+            print(f"Erreur inattendue pour {service_name}: {e}")
             return None
 
     def get_metadata(self, file_path: str) -> Dict[str, Any]:

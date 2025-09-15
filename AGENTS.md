@@ -68,23 +68,40 @@ uv pip install --offline -r requirements.txt
 ```
 
 ## Exécuter les scripts
-Script principal: `main.py`
+Script principal: `main.py` (CLI enrichie)
 
-Exécution standard (aucune activation d’environnement requise):
+### Exécution de base
 ```
-uv run python main.py <backup_2fas.json> <dossier_sortie>
-```
-
-Ou via le script console exposé par le projet:
-```
-uv run otp-export <backup_2fas.json> <dossier_sortie>
+uv run python main.py <backup_file> [<dossier_sortie>]
+uv run otp-export <backup_file> [<dossier_sortie>]
 ```
 
-Exemples:
+### Options CLI disponibles
 ```
+# Lister les entrées sans générer de QR codes
+uv run otp-export backup.2fas --list-only
+
+# Mode verbeux avec détails
+uv run otp-export backup.2fas ./qrcodes --verbose
+
+# Forcer le format 2FAS (bypass auto-détection)
+uv run otp-export backup.zip ./qrcodes --format 2fas
+
+# Aide complète
+uv run python main.py --help
+```
+
+### Exemples d'usage
+```
+# Export standard
 uv run python main.py ~/Downloads/2fas-backup.json ./qrcodes
-uv run python main.py backup.2fas ./exports
 uv run otp-export backup.2fas ./exports
+
+# Inspection du contenu avant export
+uv run otp-export backup.2fas --list-only
+
+# Export verbeux d'archive ZIP
+uv run otp-export backup.zip ./exports --verbose --format 2fas
 ```
 
 ## Utilitaires (maintenance)
@@ -163,55 +180,87 @@ Le projet dispose d'outils MCP (Model Context Protocol) pour l'intégration IDE:
 
 Ces outils permettent une meilleure intégration avec l'environnement de développement.
 
-## Modules et architecture
+## Modules et architecture (post-refactoring)
 
 ### Structure du projet
 ```
 └── 2FAS-exporter/
-    ├── main.py                     # Point d'entrée CLI
-    ├── twofas_lib.py              # Logique génération QR
-    ├── OTPTools/                  # Module OTP core (~705 lignes)
-    └── BackupProcessors/          # Module traitement backups (~472 lignes)
+    ├── main.py                     # Point d'entrée CLI enrichi
+    ├── src/                        # Modules utilitaires
+    │   └── utils.py               # Fonctions sanitisation (ex-twofas_lib)
+    ├── tests/                      # Tests unitaires
+    │   └── test_refactoring.py    # Tests de validation
+    ├── OTPTools/                   # Module OTP core enrichi (~705 lignes)
+    ├── BackupProcessors/           # Module traitement backups refactorisé (~472 lignes)
+    └── tools/                      # Utilitaires développement
 ```
 
 ### Modules disponibles
 
-#### OTPTools
+#### OTPTools (enrichi)
 Module core standardisé pour tokens OTP:
-- Classes: `TOTPEntry`, `HOTPEntry`, `OTPFactory`
-- Import: `from OTPTools import TOTPEntry, HOTPEntry`
-- Usage: validation, génération otpauth URLs
+- **Classes principales** : `TOTPEntry`, `HOTPEntry`, `OTPFactory`
+- **Factory enrichie** : `create_from_2fas()`, `parse_otpauth_url()`
+- **Import** : `from OTPTools import TOTPEntry, HOTPEntry`
+- **Usage** : Création objets OTP, validation, génération otpauth URLs
 
-#### BackupProcessors
+#### BackupProcessors (refactorisé)
 Module traitement backups multi-applications:
-- Classes: `TwoFASProcessor`, `BackupProcessorFactory`
-- Import: `from BackupProcessors import BackupProcessorFactory`
-- Usage: auto-détection et conversion formats → OTP
-- Formats supportés: .2fas, .zip, .json (extensible)
+- **Classes principales** : `TwoFASProcessor`, `BackupProcessorFactory`
+- **Import** : `from BackupProcessors import BackupProcessorFactory`
+- **Usage** : Auto-détection et extraction données → délégation vers OTPFactory
+- **Formats supportés** : .2fas, .zip, .json (extensible)
+- **Responsabilité** : Extraction de données brutes (plus de création manuelle d'objets)
+
+#### src/utils
+Module utilitaires partagées:
+- **Fonctions** : `sanitize_filename()`, `generate_safe_filename()`
+- **Import** : `from src.utils import generate_safe_filename`
+- **Usage** : Noms de fichiers sécurisés pour QR codes
+
+#### tests/
+Tests de validation:
+- **Tests complets** : Validation du refactoring
+- **Exécution** : `python tests/test_refactoring.py`
 
 ### Scripts console exposés
 - `otp-export`: lance l'export des QR codes (`main:main`).
 - `clean-pycache`: nettoie les caches Python (`tools.clean_pycache:clean_pycache_main`).
 
-#### Exemples d'utilisation modules
+#### Exemples d'utilisation modules (post-refactoring)
 ```python
-# OTPTools - création directe
-from OTPTools import TOTPEntry
-totp = TOTPEntry(issuer="GitHub", secret="JBSWY3DPEHPK3PXP")
+# OTPTools - création via Factory
+from OTPTools.factory import OTPFactory
+service_data = {"secret": "JBSWY3DPEHPK3PXP", "name": "GitHub", "otp": {"tokenType": "TOTP"}}
+entry = OTPFactory.create_from_2fas(service_data)
 
-# BackupProcessors - auto-détection
+# Parse URL otpauth
+url = "otpauth://totp/GitHub?secret=JBSWY3DPEHPK3PXP"
+entry = OTPFactory.parse_otpauth_url(url)
+
+# BackupProcessors - auto-détection (délègue vers OTPFactory)
 from BackupProcessors import BackupProcessorFactory
 factory = BackupProcessorFactory()
-entries = factory.process_backup('backup.2fas')
+entries = factory.process_backup('backup.2fas')  # Utilise OTPFactory en interne
+
+# Utilitaires
+from src.utils import generate_safe_filename
+filename = generate_safe_filename("GitHub", "user@example.com")
 ```
 
-## Références du dépôt
-- Dépendances source: `pyproject.toml` (`[project.dependencies]`)
-- Dépendances figées prod: `requirements.txt` (versions actuelles: Pillow 11.3.0, qrcode 8.2)
-- Point d'entrée: `main.py` (script console: `otp-export`)
-- Environnement local: `.venv`
-- Modules: `OTPTools/` (core), `BackupProcessors/` (traitement)
-- Fichiers de test: utilisateur définit son dossier d'exemples
-- Sortie: utilisateur choisit son dossier de destination
+## Références du dépôt (post-refactoring)
+- **Dépendances source** : `pyproject.toml` (`[project.dependencies]`)
+- **Dépendances figées prod** : `requirements.txt` (versions actuelles: Pillow 11.3.0, qrcode 8.2)
+- **Point d'entrée** : `main.py` (script console: `otp-export`) - CLI enrichie
+- **Environnement local** : `.venv`
+- **Modules principaux** :
+  - `OTPTools/` (core enrichi avec Factory)
+  - `BackupProcessors/` (refactorisé, utilise OTPFactory)
+  - `src/` (utilitaires partagés)
+  - `tests/` (validation du refactoring)
+- **Tests** : `python tests/test_refactoring.py` (5/5 tests passent)
+- **Architecture** : Séparation claire des responsabilités, aucune redondance
+- **Fichiers de test** : utilisateur définit son dossier d'exemples
+- **Sortie** : utilisateur choisit son dossier de destination
 
 Respecte ces conventions pour toutes les tâches futures: installation, exécution, tests, et maintenance des dépendances se font via `uv`.
