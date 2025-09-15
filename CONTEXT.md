@@ -1,8 +1,8 @@
-# OTP Exporter — Contexte de Travail (uv)
+# OTP Exporter - Contexte de Travail (uv)
 
-Ce document résume l’architecture, les conventions d’exécution et les points
+Ce document résume l'architecture, les conventions d'exécution et les points
 importants du projet. Pour les procédures détaillées (installation, offline,
-lockfile), voir `AGENTS.md`. Les commandes ci‑dessous utilisent exclusivement `uv`.
+lockfile), voir `AGENTS.md`. Les commandes ci-dessous utilisent exclusivement `uv`.
 
 ## Objectif
 - Exporter des QR codes OTP (PNG) à partir d’une sauvegarde JSON de l’app 2FAS.
@@ -63,7 +63,7 @@ Module core pour la gestion des tokens OTP avec classes standardisées et valida
 #### BackupProcessors (~472 lignes)
 Base pour traiter différents formats de backup 2FA et les convertir vers des
 objets OTP standardisés.
-- Rôle: auto‑détection et traitement multi‑applications
+- Rôle: auto-détection et traitement multi-applications
 - Patterns: Strategy + Factory pour extensibilité
 - Applications: 2FAS (complet), Google Auth/Authy (stubs à implémenter)
 - Formats: `.2fas`, `.zip`, `.json` (extensible)

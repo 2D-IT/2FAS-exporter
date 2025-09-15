@@ -1,15 +1,15 @@
-# Instructions Agent IA — uv (Astral)
+# Instructions Agent IA - uv (Astral)
 
-Ce dépôt utilise exclusivement `uv` (Astral) pour gérer l’environnement Python, installer les dépendances et exécuter les scripts. En tant qu’agent, suis strictement les règles et commandes ci‑dessous.
+Ce dépôt utilise exclusivement `uv` (Astral) pour gérer l'environnement Python, installer les dépendances et exécuter les scripts. En tant qu'agent, suis strictement les règles et commandes ci-dessous.
 
 ## Règles
 - Toujours utiliser `uv` pour tout: pas de `pip`, pas de `python -m venv`.
 - Ne jamais installer de paquets globalement; utiliser l’environnement local `.venv`.
 - Source de vérité des dépendances: `pyproject.toml` (`[project.dependencies]`).
 - Pour la production, synchroniser un `requirements.txt` figé depuis l’environnement.
-- En environnement sans réseau, utiliser le mode hors‑ligne de `uv`.
+- En environnement sans réseau, utiliser le mode hors-ligne de `uv`.
 
-## Pré‑requis
+## Pré-requis
 - `uv` disponible dans le PATH (`uv --version`).
 - Python installé (uv gère l’environnement; aucune activation manuelle n’est requise).
 
@@ -25,7 +25,7 @@ uv venv .venv
 ```
 uv pip install -e .
 ```
-Si `pyproject.toml` est absent (ex: clone minimal), utiliser le fallback ci‑dessous.
+Si `pyproject.toml` est absent (ex: clone minimal), utiliser le fallback ci-dessous.
 
 Mode sans réseau (si nécessaire et si les artefacts sont déjà en cache):
 ```
@@ -37,17 +37,17 @@ Astuce: pour repartir propre, on peut régénérer l’environnement
 rm -rf .venv && uv venv .venv && uv pip install -e .
 ```
 
-### Alternative tout‑en‑un
+### Alternative tout-en-un
 `uv sync` crée `.venv` et installe depuis `pyproject.toml` (utilise `uv.lock` s’il existe):
 ```
 uv sync
 ```
-Mode hors‑ligne:
+Mode hors-ligne:
 ```
 uv sync --offline
 ```
 
-### Installation auto‑détectée (pyproject d’abord, sinon fallback)
+### Installation auto-détectée (pyproject d'abord, sinon fallback)
 Copier/coller cette commande pour une installation robuste:
 ```
 uv venv .venv && \
@@ -62,7 +62,7 @@ Utiliser cette section uniquement si le dépôt cloné ne contient pas `pyprojec
 uv pip install -r requirements.txt
 ```
 
-- Installation hors‑ligne (artefacts déjà en cache):
+- Installation hors-ligne (artefacts déjà en cache):
 ```
 uv pip install --offline -r requirements.txt
 ```
@@ -144,7 +144,7 @@ uv pip install -e .
 uv pip freeze --exclude-editable > requirements.txt
 ```
 
-- En contexte hors‑ligne (CI restreinte): ne pas modifier les deps; seulement exécuter
+- En contexte hors-ligne (CI restreinte): ne pas modifier les deps; seulement exécuter
 ```
 uv run --offline python main.py ...
 ```
