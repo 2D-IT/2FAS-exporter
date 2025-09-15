@@ -1,8 +1,8 @@
-# OTP Exporter — Contexte de Travail (Codex)
+# OTP Exporter — Contexte de Travail (uv)
 
-Ce fichier conserve une compréhension fonctionnelle du projet pour les prochaines sessions. Pour toute procédure (outils, commandes, dépendances, installation, exécution), se référer exclusivement à `AGENTS.md`.
-
-Référence opérations et dépendances: voir `AGENTS.md`.
+Ce document résume l’architecture, les conventions d’exécution et les points
+importants du projet. Pour les procédures détaillées (installation, offline,
+lockfile), voir `AGENTS.md`. Les commandes ci‑dessous utilisent exclusivement `uv`.
 
 ## Objectif
 - Exporter des QR codes OTP (PNG) à partir d’une sauvegarde JSON de l’app 2FAS.
@@ -27,20 +27,26 @@ Référence opérations et dépendances: voir `AGENTS.md`.
     │   ├── hotp.py               # Implémentation HOTP
     │   └── totp.py               # Implémentation TOTP
     │
-    ├── BackupProcessors/          # Module BackupProcessors
+    ├── BackupProcessors/         # Module traitement de backups
+    │   ├── __init__.py          # Factory + exports
+    │   ├── base.py              # Interface BaseBackupProcessor
+    │   ├── exceptions.py        # Exceptions spécialisées
+    │   └── twofas.py            # Processor 2FAS
     │
-    └── tools/                     # Utilitaires dev (clean-pycache)
-        ├── __init__.py           # Factory et exports
-        ├── base.py               # Interface BaseBackupProcessor
-        ├── exceptions.py         # Exceptions spécialisées
-        └── twofas.py             # Processor 2FAS
+    └── tools/                    # Utilitaires dev
+        ├── __init__.py          
+        └── clean_pycache.py     # CLI clean des __pycache__
 ```
 
 ### Modules principaux
 
 #### Script de base
-- `main.py`: CLI principal. Prend `backup_file` (JSON) et `destination_folder`. Crée le dossier si besoin, gère erreurs basiques, appelle `generate_qr_codes`.
-- `twofas_lib.py`: logique de génération; classes `TOTPEntry` et `HOTPEntry` importées depuis le module `OTPTools`, `generate_qr_codes(file_path, output_dir)` crée automatiquement le dossier de sortie, itère `data["services"]` et écrit des fichiers PNG avec noms assainis via `sanitize_filename()` et `generate_safe_filename()`.
+- `main.py`: CLI principale. Prend `backup_file` (JSON 2FAS) et `destination_folder`.
+  Crée le dossier si besoin, gère quelques erreurs, et appelle `generate_qr_codes`.
+- `twofas_lib.py`: logique de génération; utilise `OTPTools` (`TOTPEntry`/`HOTPEntry`).
+  `generate_qr_codes(file_path, output_dir)` crée le dossier de sortie, itère
+  `data["services"]` et écrit des PNG avec noms sûrs via `sanitize_filename()`
+  et `generate_safe_filename()`.
 
 #### Utilitaires dev
 - `tools/clean_pycache.py`: CLI `clean-pycache` pour supprimer les dossiers `__pycache__` (et optionnellement `.pyc/.pyo`).
@@ -49,11 +55,14 @@ Référence opérations et dépendances: voir `AGENTS.md`.
 Module core pour la gestion des tokens OTP avec classes standardisées et validation.
 
 #### BackupProcessors (~472 lignes)
-Module pour traiter différents formats de backup 2FA et les convertir vers des objets OTP standardisés.
-- **Rôle**: Auto-détection et traitement de backups multi-applications
-- **Patterns**: Strategy + Factory pour extensibilité
-- **Applications supportées**: 2FAS (complet), Google Auth/Authy (à implémenter)
-- **Formats**: .2fas, .zip, .json extensible
+Base pour traiter différents formats de backup 2FA et les convertir vers des
+objets OTP standardisés.
+- Rôle: auto‑détection et traitement multi‑applications
+- Patterns: Strategy + Factory pour extensibilité
+- Applications: 2FAS (complet), Google Auth/Authy (stubs à implémenter)
+- Formats: `.2fas`, `.zip`, `.json` (extensible)
+Note: la CLI actuelle lit un JSON 2FAS; l’intégration d’autres formats passera
+par ce module ultérieurement.
 
 #### Configuration
 - `pyproject.toml`: métadonnées projet (nom: `otp-exporter`), dépendances, scripts console `otp-export` et `clean-pycache`. Packaging via `setuptools` incluant `OTPTools`, `BackupProcessors` et `tools`.
@@ -104,5 +113,22 @@ Module pour traiter différents formats de backup 2FA et les convertir vers des 
 - **Applications**: 2FAS (complet), Google Auth/Authy (préparé)
 
 ## Où trouver les infos d’exécution
-- Procédures d’installation, dépendances et commandes: `AGENTS.md`.
+- Procédures d’installation, dépendances et commandes: `AGENTS.md` (uv only).
 - Versions figées actuelles: `requirements.txt`.
+
+## Conventions d’exécution (uv)
+
+- Installation locale:
+  - `uv venv .venv && uv pip install -e .`
+  - Alternative: `uv sync` (offline: `uv sync --offline`).
+- Exécution CLI:
+  - `uv run otp-export <backup_2fas.json> <dossier_sortie>`
+  - ou `uv run python main.py <backup_2fas.json> <dossier_sortie>`
+- Maintenance:
+  - `uv run clean-pycache [path] [--pyc] [--include-venv] [-n] [-v]`
+- Lock/CI:
+  - `uv sync --frozen` (et `--offline` si nécessaire)
+
+### Scripts console exposés
+- `otp-export`: lance l’export des QR (`main:main`).
+- `clean-pycache`: nettoyage des caches Python.
