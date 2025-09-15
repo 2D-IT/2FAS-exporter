@@ -23,5 +23,5 @@ py-modules = ["main", "twofas_lib"]
 
 [tool.setuptools.packages.find]
 # Package the local packages so they are importable after installation
-include = ["OTPTools*", "BackupProcessors*", "tools*"]
+include = ["OTPTools*", "BackupProcessors*", "tools*", "src*"]
 exclude = ["tests*"]

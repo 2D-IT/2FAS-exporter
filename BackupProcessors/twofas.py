@@ -6,6 +6,7 @@ supportant différents formats (JSON, ZIP) et structures de données.
 """
 
 import json
+import logging
 import zipfile
 from pathlib import Path
 from typing import List, Union, Dict, Any, Optional
@@ -15,6 +16,9 @@ from .exceptions import UnsupportedFormatError, CorruptedBackupError
 from OTPTools import TOTPEntry, HOTPEntry
 from OTPTools.factory import OTPFactory
 from OTPTools.exceptions import OTPError, ParseError
+
+
+logger = logging.getLogger(__name__)
 
 
 class TwoFASProcessor(BaseBackupProcessor):
@@ -68,11 +72,14 @@ class TwoFASProcessor(BaseBackupProcessor):
         if isinstance(data, dict):
             if 'services' in data or 'entries' in data:
                 return True
-            # Vérification si c'est directement une liste d'entrées
-            if isinstance(data, list) and len(data) > 0:
-                first_item = data[0]
-                if isinstance(first_item, dict) and 'secret' in first_item:
-                    return True
+            # Peut-être que le dictionnaire représente directement un service
+            if 'secret' in data:
+                return True
+
+        if isinstance(data, list) and data:
+            first_item = data[0]
+            if isinstance(first_item, dict) and 'secret' in first_item:
+                return True
 
         return False
 
@@ -97,15 +104,17 @@ class TwoFASProcessor(BaseBackupProcessor):
         """Traite un backup 2FAS et retourne les entrées OTP."""
         path = Path(file_path)
 
-        if not self.can_process(file_path):
+        if not path.exists() or path.suffix.lower() not in self.supported_formats:
             raise UnsupportedFormatError(self.app_name, file_path)
 
         try:
             if path.suffix.lower() == '.zip':
                 return self._process_zip_backup(path)
-            else:
-                return self._process_json_backup(path)
-
+            return self._process_json_backup(path)
+        except UnsupportedFormatError:
+            raise
+        except CorruptedBackupError:
+            raise
         except Exception as e:
             raise CorruptedBackupError(file_path, str(e))
 
@@ -114,11 +123,15 @@ class TwoFASProcessor(BaseBackupProcessor):
         with open(json_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
+        if not self._is_valid_2fas_format(data):
+            raise UnsupportedFormatError(self.app_name, str(json_path))
+
         return self._extract_entries_from_data(data)
 
     def _process_zip_backup(self, zip_path: Path) -> List[Union[TOTPEntry, HOTPEntry]]:
         """Traite une archive ZIP 2FAS."""
         entries = []
+        found_valid_data = False
 
         with zipfile.ZipFile(zip_path, 'r') as zip_file:
             json_files = [f for f in zip_file.namelist() if f.endswith('.json')]
@@ -127,7 +140,11 @@ class TwoFASProcessor(BaseBackupProcessor):
                 with zip_file.open(json_file) as f:
                     data = json.load(f)
                     if self._is_valid_2fas_format(data):
+                        found_valid_data = True
                         entries.extend(self._extract_entries_from_data(data))
+
+        if not found_valid_data:
+            raise UnsupportedFormatError(self.app_name, str(zip_path))
 
         return entries
 
@@ -150,14 +167,9 @@ class TwoFASProcessor(BaseBackupProcessor):
             services = data
 
         for service in services:
-            try:
-                entry = self._create_otp_entry_from_service(service)
-                if entry:
-                    entries.append(entry)
-            except Exception as e:
-                # Log l'erreur mais continue avec les autres entrées
-                print(f"Erreur lors du traitement de l'entrée: {e}")
-                continue
+            entry = self._create_otp_entry_from_service(service)
+            if entry:
+                entries.append(entry)
 
         return entries
 
@@ -170,14 +182,12 @@ class TwoFASProcessor(BaseBackupProcessor):
             # Délègue entièrement la création à OTPFactory
             return OTPFactory.create_from_2fas(service)
         except (OTPError, ParseError) as e:
-            # Log l'erreur mais continue avec les autres entrées
             service_name = service.get('name', 'service inconnu')
-            print(f"Erreur lors de la création OTP pour {service_name}: {e}")
+            logger.warning("Erreur lors de la création OTP pour %s: %s", service_name, e)
             return None
         except Exception as e:
-            # Catch any unexpected errors
             service_name = service.get('name', 'service inconnu')
-            print(f"Erreur inattendue pour {service_name}: {e}")
+            logger.exception("Erreur inattendue pour %s: %s", service_name, e)
             return None
 
     def get_metadata(self, file_path: str) -> Dict[str, Any]:

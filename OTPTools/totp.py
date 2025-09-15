@@ -84,10 +84,11 @@ class TOTPEntry(OTPEntry):
     def _get_specific_params(self) -> Dict[str, str]:
         """
         Retourne les paramètres spécifiques au TOTP.
-        
+
         Returns:
             Dictionnaire avec la période si différente de 30
-        """        # Ne pas inclure la période si c'est la valeur par défaut (30)
+        """
+        # Ne pas inclure la période si c'est la valeur par défaut (30)
         if self.period != OTPConfig.DEFAULT_PERIOD:
             return {"period": str(self.period)}
         return {}

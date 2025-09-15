@@ -89,6 +89,17 @@ uv run otp-export backup.2fas --list-only
 uv run otp-export backup.zip ./exports --verbose
 ```
 
+### Exemple fourni
+
+Un backup de démonstration est disponible dans `exemple/2fas-backup-20250915150420.2fas`.
+Vous pouvez inspecter son contenu sans générer de QR codes:
+
+```bash
+uv run otp-export exemple/2fas-backup-20250915150420.2fas --list-only
+```
+
+La commande affiche le nombre total d’entrées TOTP/HOTP détectées avec leurs labels.
+
 ## Maintenance
 
 Nettoyer les dossiers `__pycache__` (et optionnellement `.pyc/.pyo`):
@@ -159,6 +170,8 @@ Fichier backup → BackupProcessorFactory → OTPFactory → QR codes
 - **OTPFactory** : Crée les objets OTP standardisés (TOTP/HOTP)
 - **main.py** : Gère la CLI et génère les QR codes
 - **src/utils** : Fonctions utilitaires partagées
+- Les backups JSON/ZIP invalides sont signalés proprement avec des messages de log
+- Les modules utilitaires (`src`) sont empaquetés avec l'installation editable pour éviter les erreurs d'import
 
 ## Licence
 
