@@ -164,8 +164,13 @@ cython_debug/
 qr_codes
 
 .python-version
-pyproject.toml
 uv.lock
 
 Dockerfile
 2FAS-exporter.code-workspace
+.claude/settings.local.json
+OTPTools/.claude/settings.local.json
+
+# Ignore backup files from 2FAS application
+exemple/
+exports/
