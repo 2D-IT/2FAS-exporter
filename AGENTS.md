@@ -83,8 +83,8 @@ uv run otp-export <backup_2fas.json> <dossier_sortie>
 Exemples:
 ```
 uv run python main.py ~/Downloads/2fas-backup.json ./qrcodes
-uv run python main.py exemple/2fas-backup-20250915150420.2fas exports/
-uv run otp-export exemple/2fas-backup-20250915150420.2fas exports/
+uv run python main.py backup.2fas ./exports
+uv run otp-export backup.2fas ./exports
 ```
 
 ## Utilitaires (maintenance)
@@ -211,7 +211,7 @@ entries = factory.process_backup('backup.2fas')
 - Point d'entrée: `main.py` (script console: `otp-export`)
 - Environnement local: `.venv`
 - Modules: `OTPTools/` (core), `BackupProcessors/` (traitement)
-- Exemples de test: `exemple/` (fichier sample `.2fas`)
-- Sortie par défaut: `exports/` (QR codes générés)
+- Fichiers de test: utilisateur définit son dossier d'exemples
+- Sortie: utilisateur choisit son dossier de destination
 
 Respecte ces conventions pour toutes les tâches futures: installation, exécution, tests, et maintenance des dépendances se font via `uv`.

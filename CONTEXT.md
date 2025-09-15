@@ -37,10 +37,10 @@ lockfile), voir `AGENTS.md`. Les commandes ci‑dessous utilisent exclusivement 
     │   ├── __init__.py
     │   └── clean_pycache.py     # CLI clean des __pycache__
     │
-    ├── exemple/                  # Fichiers de test
-    │   └── 2fas-backup-20250915150420.2fas  # Sample backup
+    ├── [exemple/]                # Dossier de test (utilisateur)
+    │   └── *.2fas               # Fichiers backup sample
     │
-    └── exports/                  # QR codes générés (gitignore)
+    └── [exports/]               # QR codes générés (utilisateur)
         └── *.png                # Fichiers de sortie
 ```
 
@@ -74,8 +74,7 @@ par ce module ultérieurement.
 - `pyproject.toml`: métadonnées projet (nom: `otp-exporter`), dépendances, scripts console `otp-export` et `clean-pycache`. Packaging via `setuptools` incluant `OTPTools`, `BackupProcessors` et `tools`.
 - `requirements.txt`: versions figées pour la prod (Pillow 11.3.0, qrcode 8.2) et fallback si `pyproject.toml` absent.
 - `AGENTS.md`: règles et procédures opérationnelles (uv, installation, sync, offline, fallback, outils MCP).
-- `exemple/`: fichiers de test incluant un sample backup `.2fas` pour les démonstrations.
-- `exports/`: dossier de sortie par défaut pour les QR codes générés (ignoré par git).
+- Dossiers utilisateur: l'utilisateur définit ses propres dossiers pour les backups et la sortie.
 
 ## Flux haut niveau
 - Entrée: fichier JSON de sauvegarde 2FAS.
@@ -132,7 +131,7 @@ par ce module ultérieurement.
 - Exécution CLI:
   - `uv run otp-export <backup_2fas.json> <dossier_sortie>`
   - ou `uv run python main.py <backup_2fas.json> <dossier_sortie>`
-  - Exemple: `uv run otp-export exemple/2fas-backup-20250915150420.2fas exports/`
+  - Exemple: `uv run otp-export backup.2fas ./exports`
 - Maintenance:
   - `uv run clean-pycache [path] [--pyc] [--include-venv] [-n] [-v]`
 - Lock/CI:
