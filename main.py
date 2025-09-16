@@ -1,4 +1,5 @@
 import os
+import sys
 import argparse
 import logging
 import qrcode
@@ -131,7 +132,7 @@ Examples:
     # Vérification de l'existence du fichier source
     if not os.path.isfile(args.backup_file):
         logging.error(f"❌ Source file '{args.backup_file}' does not exist.")
-        exit(1)
+        sys.exit(1)
 
     try:
         # Choisir le processor selon le format
@@ -141,7 +142,7 @@ Examples:
                 logging.error(
                     f"❌ File '{args.backup_file}' is not a valid 2FAS backup."
                 )
-                exit(1)
+                sys.exit(1)
             entries = processor.process_backup(args.backup_file)
         else:  # auto-detection
             factory = BackupProcessorFactory()
@@ -160,7 +161,7 @@ Examples:
             logging.error(
                 "❌ Destination folder is required when not using --list-only"
             )
-            exit(1)
+            sys.exit(1)
 
         if not os.path.exists(args.destination_folder):
             try:
@@ -171,7 +172,7 @@ Examples:
                     )
             except Exception as e:
                 logging.error(f"❌ Failed to create destination directory: {e}")
-                exit(1)
+                sys.exit(1)
 
         # Génération des QR codes
         if entries:
@@ -184,14 +185,14 @@ Examples:
 
     except UnsupportedFormatError as e:
         logging.error(f"❌ Format de backup non supporté: {e}")
-        exit(1)
+        sys.exit(1)
     except Exception as e:
         logging.error(f"❌ An unexpected error occurred: {e}")
         if args.verbose:
             import traceback
 
             traceback.print_exc()
-        exit(1)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
