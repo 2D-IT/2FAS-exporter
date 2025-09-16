@@ -36,8 +36,8 @@ def test_otpfactory_create_from_2fas():
             "tokenType": "TOTP",
             "digits": "6",
             "period": "30",
-            "algorithm": "SHA1"
-        }
+            "algorithm": "SHA1",
+        },
     }
 
     try:
@@ -57,10 +57,7 @@ def test_otpfactory_create_from_2fas():
     service_hotp = {
         "secret": "JBSWY3DPEHPK3PXP",
         "name": "Service HOTP",
-        "otp": {
-            "tokenType": "HOTP",
-            "counter": "5"
-        }
+        "otp": {"tokenType": "HOTP", "counter": "5"},
     }
 
     try:
@@ -74,10 +71,7 @@ def test_otpfactory_create_from_2fas():
         return False
 
     # Test avec données minimales
-    service_minimal = {
-        "secret": "JBSWY3DPEHPK3PXP",
-        "name": "Minimal Service"
-    }
+    service_minimal = {"secret": "JBSWY3DPEHPK3PXP", "name": "Minimal Service"}
 
     try:
         entry = OTPFactory.create_from_2fas(service_minimal)
@@ -140,21 +134,18 @@ def test_backup_processor_factory():
                     "account": "test1@example.com",
                     "tokenType": "TOTP",
                     "digits": "6",
-                    "period": "30"
-                }
+                    "period": "30",
+                },
             },
             {
                 "secret": "ABCDEFGHIJKLMNOP",
                 "name": "Test Service 2",
-                "otp": {
-                    "tokenType": "HOTP",
-                    "counter": "0"
-                }
-            }
+                "otp": {"tokenType": "HOTP", "counter": "0"},
+            },
         ]
     }
 
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.2fas', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".2fas", delete=False) as f:
         json.dump(test_data, f)
         temp_file = f.name
 
@@ -203,7 +194,9 @@ def test_utils_functions():
     for input_name, expected in test_cases:
         result = sanitize_filename(input_name)
         if result != expected:
-            print(f"  ❌ sanitize_filename('{input_name}') = '{result}', attendu '{expected}'")
+            print(
+                f"  ❌ sanitize_filename('{input_name}') = '{result}', attendu '{expected}'"
+            )
             return False
 
     print("  ✅ sanitize_filename fonctionne correctement")
@@ -218,7 +211,9 @@ def test_utils_functions():
     result = generate_safe_filename("GitHub", "")
     expected = "GitHub"
     if result != expected:
-        print(f"  ❌ generate_safe_filename sans account résultat inattendu: '{result}'")
+        print(
+            f"  ❌ generate_safe_filename sans account résultat inattendu: '{result}'"
+        )
         return False
 
     print("  ✅ generate_safe_filename fonctionne correctement")
@@ -234,11 +229,7 @@ def test_qr_code_generation():
     service_data = {
         "secret": "JBSWY3DPEHPK3PXP",
         "name": "GitHub",
-        "otp": {
-            "issuer": "GitHub",
-            "account": "user@example.com",
-            "tokenType": "TOTP"
-        }
+        "otp": {"issuer": "GitHub", "account": "user@example.com", "tokenType": "TOTP"},
     }
 
     try:

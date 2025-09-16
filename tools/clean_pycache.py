@@ -105,4 +105,3 @@ def clean_pycache_main() -> int:
     )
 
     return 0
-

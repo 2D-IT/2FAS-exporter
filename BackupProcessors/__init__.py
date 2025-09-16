@@ -32,7 +32,7 @@ from typing import List, Union, Optional
 from .exceptions import (
     BackupProcessorError,
     UnsupportedFormatError,
-    CorruptedBackupError
+    CorruptedBackupError,
 )
 from .base import BaseBackupProcessor
 from .twofas import TwoFASProcessor
@@ -104,16 +104,12 @@ __all__ = [
     "BackupProcessorError",
     "UnsupportedFormatError",
     "CorruptedBackupError",
-
     # Interface de base
     "BaseBackupProcessor",
-
     # Processors spécialisés
     "TwoFASProcessor",
-
     # Factory
     "BackupProcessorFactory",
-
     # Classes OTP réexportées pour commodité
     "TOTPEntry",
     "HOTPEntry",
@@ -137,7 +133,8 @@ def example_usage():
     print(f"   Applications supportées: {factory.get_supported_apps()}")
 
     print("\n3. Code d'exemple:")
-    print("""
+    print(
+        """
     # Pour traiter un backup spécifique
     processor = TwoFASProcessor()
     if processor.can_process("backup.2fas"):
@@ -151,7 +148,8 @@ def example_usage():
         print(f"Auto-détection réussie: {len(entries)} entrées")
     except UnsupportedFormatError:
         print("Format de backup non supporté")
-    """)
+    """
+    )
 
 
 if __name__ == "__main__":

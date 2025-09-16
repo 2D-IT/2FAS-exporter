@@ -5,6 +5,7 @@ Exporte des QR codes OTP (PNG) à partir de sauvegardes 2FA (2FAS, etc.).
 ## Aperçu
 
 - **Auto-détection de format** : Support 2FAS (.2fas, .json, .zip) avec extensibilité pour d'autres apps
+- **Sauvegardes chiffrées** : Déchiffre les exports 2FAS protégés par mot de passe (AES-GCM, PBKDF2)
 - **Génération QR codes** : Un fichier PNG par service avec noms sécurisés
 - **CLI enrichie** : Options verbose, liste des entrées, choix de format
 - **Architecture modulaire** : Séparation claire entre extraction de données et création d'objets OTP
@@ -76,6 +77,13 @@ uv run otp-export backup.zip ./qrcodes --format 2fas
 uv run python main.py --help
 ```
 
+### Sauvegardes 2FAS chiffrées
+
+- Si le backup contient `servicesEncrypted`, l'outil demande automatiquement le mot de passe via `getpass`.
+- L'exécution doit donc être interactive (TTY). En mode non interactif, le traitement échoue avec un message explicite.
+- Après validation du mot de passe, la clé est dérivée via PBKDF2-HMAC-SHA256 (10k itérations) et utilisée avec AES-GCM (cryptography).
+- Les fichiers ZIP contenant plusieurs JSON chiffrés réutilisent le même mot de passe pendant la session.
+
 ### Exemples complets
 
 ```bash
@@ -120,6 +128,7 @@ uv run clean-pycache --pyc --include-venv
 
 - Source de vérité: `pyproject.toml` (`[project.dependencies]`).
 - `requirements.txt` est généré; ne pas l’éditer à la main.
+- Dépendances clés: `qrcode`, `Pillow` et `cryptography` (support du chiffrement AES-GCM des backups 2FAS).
 - Lockfile optionnel `uv.lock` pour installations reproductibles:
 
 ```bash

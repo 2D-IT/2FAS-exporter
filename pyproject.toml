@@ -8,6 +8,7 @@ version = "0.1.0"
 description = "Export QR codes from a 2FAS JSON backup file."
 requires-python = ">=3.8"
 dependencies = [
+  "cryptography>=41.0.0",
   "qrcode>=7.4.2",
   "pillow>=10.3.0",
 ]

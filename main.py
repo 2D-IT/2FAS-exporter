@@ -4,12 +4,18 @@ import logging
 import qrcode
 from typing import List, Union
 
-from BackupProcessors import BackupProcessorFactory, UnsupportedFormatError, TwoFASProcessor
+from BackupProcessors import (
+    BackupProcessorFactory,
+    UnsupportedFormatError,
+    TwoFASProcessor,
+)
 from OTPTools import TOTPEntry, HOTPEntry
 from src.utils import generate_safe_filename
 
 
-def generate_qr_codes_from_entries(entries: List[Union[TOTPEntry, HOTPEntry]], output_dir: str, verbose: bool = False):
+def generate_qr_codes_from_entries(
+    entries: List[Union[TOTPEntry, HOTPEntry]], output_dir: str, verbose: bool = False
+):
     """
     Génère les QR codes pour une liste d'entrées OTP.
 
@@ -44,7 +50,9 @@ def generate_qr_codes_from_entries(entries: List[Union[TOTPEntry, HOTPEntry]], o
 
         except Exception as e:
             error_count += 1
-            logging.error(f"❌ Erreur lors de la génération du QR code pour {entry.label}: {e}")
+            logging.error(
+                f"❌ Erreur lors de la génération du QR code pour {entry.label}: {e}"
+            )
 
     # Résumé final
     total = len(entries)
@@ -75,7 +83,6 @@ def list_entries(entries: List[Union[TOTPEntry, HOTPEntry]]):
     print("-" * 50)
 
 
-
 def main():
     parser = argparse.ArgumentParser(
         description="Export QR codes from 2FAS and other 2FA backup files.",
@@ -86,45 +93,40 @@ Examples:
   %(prog)s backup.2fas ./qr_codes --verbose          # Verbose output
   %(prog)s backup.zip ./qr_codes --format 2fas       # Force 2FAS format
   %(prog)s backup.json ./qr_codes --list-only        # List entries only
-        """
+        """,
     )
 
     parser.add_argument(
         "backup_file",
         type=str,
-        help="Path to the backup file (supports .2fas, .json, .zip)"
+        help="Path to the backup file (supports .2fas, .json, .zip)",
     )
     parser.add_argument(
         "destination_folder",
         type=str,
-        nargs='?',
-        help="Directory where the QR code images will be saved (not required with --list-only)"
+        nargs="?",
+        help="Directory where the QR code images will be saved (not required with --list-only)",
     )
     parser.add_argument(
         "--format",
         choices=["auto", "2fas"],
         default="auto",
-        help="Force backup format detection (default: auto)"
+        help="Force backup format detection (default: auto)",
     )
     parser.add_argument(
-        "--verbose", "-v",
-        action="store_true",
-        help="Enable verbose logging"
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
     parser.add_argument(
         "--list-only",
         action="store_true",
-        help="List entries without generating QR codes"
+        help="List entries without generating QR codes",
     )
 
     args = parser.parse_args()
 
     # Configuration du logging
     log_level = logging.DEBUG if args.verbose else logging.INFO
-    logging.basicConfig(
-        level=log_level,
-        format="%(levelname)s: %(message)s"
-    )
+    logging.basicConfig(level=log_level, format="%(levelname)s: %(message)s")
 
     # Vérification de l'existence du fichier source
     if not os.path.isfile(args.backup_file):
@@ -136,7 +138,9 @@ Examples:
         if args.format == "2fas":
             processor = TwoFASProcessor()
             if not processor.can_process(args.backup_file):
-                logging.error(f"❌ File '{args.backup_file}' is not a valid 2FAS backup.")
+                logging.error(
+                    f"❌ File '{args.backup_file}' is not a valid 2FAS backup."
+                )
                 exit(1)
             entries = processor.process_backup(args.backup_file)
         else:  # auto-detection
@@ -153,14 +157,18 @@ Examples:
 
         # Vérification du dossier de destination
         if not args.destination_folder:
-            logging.error("❌ Destination folder is required when not using --list-only")
+            logging.error(
+                "❌ Destination folder is required when not using --list-only"
+            )
             exit(1)
 
         if not os.path.exists(args.destination_folder):
             try:
                 os.makedirs(args.destination_folder, exist_ok=True)
                 if args.verbose:
-                    logging.info(f"📁 Dossier de destination créé: {args.destination_folder}")
+                    logging.info(
+                        f"📁 Dossier de destination créé: {args.destination_folder}"
+                    )
             except Exception as e:
                 logging.error(f"❌ Failed to create destination directory: {e}")
                 exit(1)
@@ -168,7 +176,9 @@ Examples:
         # Génération des QR codes
         if entries:
             logging.info(f"🚀 Génération des QR codes dans {args.destination_folder}")
-            generate_qr_codes_from_entries(entries, args.destination_folder, args.verbose)
+            generate_qr_codes_from_entries(
+                entries, args.destination_folder, args.verbose
+            )
         else:
             logging.warning("⚠️  Aucune entrée OTP valide trouvée dans le backup")
 
@@ -179,9 +189,9 @@ Examples:
         logging.error(f"❌ An unexpected error occurred: {e}")
         if args.verbose:
             import traceback
+
             traceback.print_exc()
         exit(1)
-
 
 
 if __name__ == "__main__":

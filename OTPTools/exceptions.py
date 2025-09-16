@@ -5,12 +5,13 @@ Exceptions personnalisées pour le module OTP.
 
 class OTPError(Exception):
     """Exception de base pour toutes les erreurs OTP."""
+
     pass
 
 
 class InvalidSecretError(OTPError):
     """Exception levée quand le secret OTP est invalide."""
-    
+
     def __init__(self, secret: str, message: str = None):
         self.secret = secret
         if message is None:
@@ -20,7 +21,7 @@ class InvalidSecretError(OTPError):
 
 class InvalidParameterError(OTPError):
     """Exception levée quand un paramètre OTP est invalide."""
-    
+
     def __init__(self, param_name: str, param_value, message: str = None):
         self.param_name = param_name
         self.param_value = param_value
@@ -31,7 +32,7 @@ class InvalidParameterError(OTPError):
 
 class ParseError(OTPError):
     """Exception levée lors d'erreurs de parsing."""
-    
+
     def __init__(self, source: str, message: str = None):
         self.source = source
         if message is None:
@@ -41,4 +42,5 @@ class ParseError(OTPError):
 
 class ExportError(OTPError):
     """Exception levée lors d'erreurs d'export."""
+
     pass

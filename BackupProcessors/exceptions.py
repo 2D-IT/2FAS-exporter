@@ -8,6 +8,7 @@ de backup pour une gestion d'erreur cohérente et spécialisée.
 
 class BackupProcessorError(Exception):
     """Exception de base pour les erreurs de traitement de backup."""
+
     pass
 
 

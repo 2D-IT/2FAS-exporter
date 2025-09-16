@@ -5,7 +5,7 @@ importants du projet. Pour les procédures détaillées (installation, offline,
 lockfile), voir `AGENTS.md`. Les commandes ci-dessous utilisent exclusivement `uv`.
 
 ## Objectif
-- Exporter des QR codes OTP (PNG) à partir de sauvegardes 2FA (2FAS, extensible pour autres apps).
+- Exporter des QR codes OTP (PNG) à partir de sauvegardes 2FA (2FAS, extensible pour autres apps), y compris les exports 2FAS chiffrés.
 - Architecture modulaire avec séparation claire des responsabilités.
 
 ## Architecture du dépôt
@@ -40,7 +40,7 @@ lockfile), voir `AGENTS.md`. Les commandes ci-dessous utilisent exclusivement `u
     │   ├── __init__.py          # Factory + exports
     │   ├── base.py              # Interface BaseBackupProcessor
     │   ├── exceptions.py        # Exceptions spécialisées
-    │   └── twofas.py            # Processor 2FAS (utilise OTPFactory)
+    │   └── twofas.py            # Processor 2FAS (OTPFactory + déchiffrement AES-GCM)
     │
     ├── tools/                    # Utilitaires dev
     │   ├── __init__.py
@@ -83,7 +83,7 @@ objets OTP standardisés.
 
 #### Configuration
 - `pyproject.toml`: métadonnées projet (nom: `otp-exporter`), dépendances, scripts console `otp-export` et `clean-pycache`. Packaging via `setuptools` incluant `OTPTools`, `BackupProcessors` et `tools`.
-- `requirements.txt`: versions figées pour la prod (Pillow 11.3.0, qrcode 8.2) et fallback si `pyproject.toml` absent.
+- `requirements.txt`: versions figées pour la prod (Pillow 11.3.0, qrcode 8.2, cryptography 45.0.7) et fallback si `pyproject.toml` absent.
 - `AGENTS.md`: règles et procédures opérationnelles (uv, installation, sync, offline, fallback, outils MCP).
 - Dossiers utilisateur: l'utilisateur définit ses propres dossiers pour les backups et la sortie.
 
@@ -103,6 +103,7 @@ objets OTP standardisés.
 - **CLI enrichie** : ✅ IMPLÉMENTÉ - Options `--verbose`, `--list-only`, `--format`
 - **Architecture modulaire** : ✅ REFACTORISÉ - Séparation claire des responsabilités
 - **Tests** : ✅ AJOUTÉS - Validation complète du refactoring
+- **Sauvegardes chiffrées** : ✅ PRIS EN CHARGE - Déchiffrement AES-GCM (PBKDF2 SHA-256, `cryptography`) avec saisie interactive du mot de passe
 - **Documentation** : ✅ MISE À JOUR - Reflet de la nouvelle architecture
 
 ## Évolution architecturale
@@ -160,6 +161,7 @@ objets OTP standardisés.
     - `uv run otp-export backup.2fas ./exports`
     - `uv run otp-export backup.2fas --list-only`
     - `uv run otp-export backup.zip ./exports --verbose --format 2fas`
+- Sauvegardes chiffrées: exécution interactive obligatoire (prompt `getpass`), sinon `CorruptedBackupError` explicite.
 - Maintenance:
   - `uv run clean-pycache [path] [--pyc] [--include-venv] [-n] [-v]`
 - Lock/CI:

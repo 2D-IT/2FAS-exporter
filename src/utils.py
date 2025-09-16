@@ -24,28 +24,49 @@ def sanitize_filename(filename):
         return "unknown"
 
     # Normalise les caractères Unicode (ex: é -> e)
-    filename = unicodedata.normalize('NFKD', filename)
-    filename = filename.encode('ascii', 'ignore').decode('ascii')
+    filename = unicodedata.normalize("NFKD", filename)
+    filename = filename.encode("ascii", "ignore").decode("ascii")
 
     # Remplace les caractères interdits par des tirets
     # Windows: < > : " | ? * \ /
     # Unix: /
-    filename = re.sub(r'[<>:"/\\|?*]', '-', filename)
+    filename = re.sub(r'[<>:"/\\|?*]', "-", filename)
 
     # Supprime les espaces en début/fin et remplace les espaces multiples
-    filename = re.sub(r'\s+', '_', filename.strip())
+    filename = re.sub(r"\s+", "_", filename.strip())
 
     # Supprime les points en début/fin (problématique sur Windows)
-    filename = filename.strip('.')
+    filename = filename.strip(".")
 
     # Limite la longueur (255 caractères max sur la plupart des systèmes)
     if len(filename) > 200:  # Garde de la marge pour l'extension
         filename = filename[:200]
 
     # Évite les noms réservés Windows
-    reserved_names = {'CON', 'PRN', 'AUX', 'NUL', 'COM1', 'COM2', 'COM3', 'COM4',
-                     'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'LPT1', 'LPT2',
-                     'LPT3', 'LPT4', 'LPT5', 'LPT6', 'LPT7', 'LPT8', 'LPT9'}
+    reserved_names = {
+        "CON",
+        "PRN",
+        "AUX",
+        "NUL",
+        "COM1",
+        "COM2",
+        "COM3",
+        "COM4",
+        "COM5",
+        "COM6",
+        "COM7",
+        "COM8",
+        "COM9",
+        "LPT1",
+        "LPT2",
+        "LPT3",
+        "LPT4",
+        "LPT5",
+        "LPT6",
+        "LPT7",
+        "LPT8",
+        "LPT9",
+    }
 
     if filename.upper() in reserved_names:
         filename = f"_{filename}"

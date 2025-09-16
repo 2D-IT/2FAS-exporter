@@ -104,6 +104,12 @@ uv run otp-export backup.2fas --list-only
 uv run otp-export backup.zip ./exports --verbose --format 2fas
 ```
 
+### Sauvegardes chiffrées 2FAS
+- Le processor détecte `servicesEncrypted` et déclenche une demande de mot de passe via `getpass`.
+- L'exécution doit rester interactive (TTY); en non interactif, une erreur `CorruptedBackupError` signale l'absence de saisie possible.
+- Le mot de passe validé est réutilisé pour les autres fichiers de la même session (JSON ou ZIP contenant plusieurs dumps).
+- La dérivation de clé suit PBKDF2-HMAC-SHA256 (10 000 itérations) puis AES-GCM (lib `cryptography`).
+
 ## Utilitaires (maintenance)
 - Nettoyer les dossiers `__pycache__` (et optionnellement les fichiers `.pyc`):
 ```
@@ -128,6 +134,7 @@ uv pip install -e .
 ```
 
 - Ne pas éditer `requirements.txt` à la main; il est généré depuis l’environnement résolu.
+- Dépendances critiques actuelles: `qrcode`, `Pillow`, `cryptography`.
 
 - Synchroniser `requirements.txt` (pour prod): figer les versions résolues
 ```

@@ -22,12 +22,7 @@ from .base import OTPEntry
 from .totp import TOTPEntry
 from .hotp import HOTPEntry
 from .factory import OTPFactory
-from .exceptions import (
-    OTPError,
-    InvalidSecretError,
-    InvalidParameterError,
-    ParseError
-)
+from .exceptions import OTPError, InvalidSecretError, InvalidParameterError, ParseError
 
 __version__ = "1.0.0"
 __author__ = "Your Name"

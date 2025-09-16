@@ -15,33 +15,33 @@ from .exceptions import ParseError, OTPError
 class OTPFactory:
     """
     Factory pour créer des entrées OTP à partir de différentes sources.
-    
+
     Cette classe fournit des méthodes statiques pour créer des instances
     TOTPEntry ou HOTPEntry depuis différents formats d'entrée.
-    
+
     Methods:
         create_from_dict: Crée une entrée depuis un dictionnaire générique
         create_from_2fas: Crée une entrée depuis le format 2FAS spécifique
         parse_otpauth_url: Parse une URL otpauth:// et crée l'objet OTP
     """
-    
+
     @staticmethod
     def create_from_dict(data: Dict[str, Any]) -> OTPEntry:
         """
         Crée une entrée OTP à partir d'un dictionnaire.
-        
+
         Args:
             data: Dictionnaire contenant les paramètres OTP
                   Doit contenir au minimum 'issuer' et 'secret'
                   'type' optionnel (défaut: 'totp')
-        
+
         Returns:
             Instance de TOTPEntry ou HOTPEntry selon le type
-            
+
         Raises:
             ParseError: Si le type n'est pas supporté
             KeyError: Si des champs requis sont manquants
-            
+
         Example:
             >>> data = {
             ...     "issuer": "GitHub",
@@ -51,7 +51,7 @@ class OTPFactory:
             >>> entry = OTPFactory.create_from_dict(data)
         """
         otp_type = data.get("type", "totp").lower()
-        
+
         if otp_type == "totp":
             return TOTPEntry(
                 issuer=data["issuer"],
@@ -59,7 +59,7 @@ class OTPFactory:
                 account=data.get("account"),
                 digits=data.get("digits", OTPConfig.DEFAULT_DIGITS),
                 period=data.get("period", OTPConfig.DEFAULT_PERIOD),
-                algorithm=data.get("algorithm", OTPConfig.DEFAULT_ALGORITHM)
+                algorithm=data.get("algorithm", OTPConfig.DEFAULT_ALGORITHM),
             )
 
         elif otp_type == "hotp":
@@ -69,7 +69,7 @@ class OTPFactory:
                 account=data.get("account"),
                 digits=data.get("digits", OTPConfig.DEFAULT_DIGITS),
                 counter=data.get("counter", 0),
-                algorithm=data.get("algorithm", OTPConfig.DEFAULT_ALGORITHM)
+                algorithm=data.get("algorithm", OTPConfig.DEFAULT_ALGORITHM),
             )
 
         else:
@@ -152,7 +152,7 @@ class OTPFactory:
                     account=account if account else None,
                     digits=digits,
                     counter=counter,
-                    algorithm=algorithm
+                    algorithm=algorithm,
                 )
             else:  # TOTP par défaut
                 period = int(otp_data.get("period", OTPConfig.DEFAULT_PERIOD))
@@ -162,7 +162,7 @@ class OTPFactory:
                     account=account if account else None,
                     digits=digits,
                     period=period,
-                    algorithm=algorithm
+                    algorithm=algorithm,
                 )
         except (ValueError, TypeError) as e:
             raise ParseError(f"Erreur de conversion des paramètres 2FAS: {e}")
@@ -202,7 +202,7 @@ class OTPFactory:
                 raise ParseError(f"Type OTP non supporté dans l'URL: {otp_type}")
 
             # Extraction du label (path sans le /)
-            label = urllib.parse.unquote(parsed.path.lstrip('/'))
+            label = urllib.parse.unquote(parsed.path.lstrip("/"))
             if not label:
                 raise ParseError("Le label est obligatoire dans l'URL otpauth")
 
@@ -232,7 +232,9 @@ class OTPFactory:
 
             # Paramètres optionnels avec valeurs par défaut
             digits = int(params.get("digits", [OTPConfig.DEFAULT_DIGITS])[0])
-            algorithm = params.get("algorithm", [OTPConfig.DEFAULT_ALGORITHM])[0].upper()
+            algorithm = params.get("algorithm", [OTPConfig.DEFAULT_ALGORITHM])[
+                0
+            ].upper()
 
             # Création selon le type
             if otp_type == "hotp":
@@ -243,7 +245,7 @@ class OTPFactory:
                     account=account,
                     digits=digits,
                     counter=counter,
-                    algorithm=algorithm
+                    algorithm=algorithm,
                 )
             else:  # totp
                 period = int(params.get("period", [OTPConfig.DEFAULT_PERIOD])[0])
@@ -253,7 +255,7 @@ class OTPFactory:
                     account=account,
                     digits=digits,
                     period=period,
-                    algorithm=algorithm
+                    algorithm=algorithm,
                 )
 
         except (ValueError, TypeError) as e:
