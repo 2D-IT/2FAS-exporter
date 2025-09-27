@@ -12,7 +12,7 @@ lockfile), voir `AGENTS.md`. Les commandes ci-dessous utilisent exclusivement `u
 
 ### Structure globale (post-refactoring)
 ```
-└── 2FAS-exporter/
+└── 2FA-exporter/
     ├── main.py                     # CLI principal avec nouvelles options
     ├── twofas_lib.py.bak          # Ancien module (archivé)
     ├── pyproject.toml             # Configuration projet
@@ -42,10 +42,6 @@ lockfile), voir `AGENTS.md`. Les commandes ci-dessous utilisent exclusivement `u
     │   ├── exceptions.py        # Exceptions spécialisées
     │   └── twofas.py            # Processor 2FAS (OTPFactory + déchiffrement AES-GCM)
     │
-    ├── tools/                    # Utilitaires dev
-    │   ├── __init__.py
-    │   └── clean_pycache.py     # CLI clean des __pycache__
-    │
     ├── [exemple/]                # Dossier de test (utilisateur)
     │   └── *.2fas               # Fichiers backup sample
     │
@@ -63,9 +59,6 @@ lockfile), voir `AGENTS.md`. Les commandes ci-dessous utilisent exclusivement `u
   Contient `sanitize_filename()` et `generate_safe_filename()` pour noms sécurisés.
 - `tests/test_refactoring.py`: Tests complets de validation du refactoring.
 
-#### Utilitaires dev
-- `tools/clean_pycache.py`: CLI `clean-pycache` pour supprimer les dossiers `__pycache__` (et optionnellement `.pyc/.pyo`).
-
 #### OTPTools (~705 lignes, enrichi)
 Module core pour la gestion des tokens OTP avec classes standardisées et validation.
 - **Factory enrichie** : `OTPFactory.create_from_2fas()` et `parse_otpauth_url()`
@@ -82,7 +75,7 @@ objets OTP standardisés.
 - **CLI intégrée** : Auto-détection et traitement direct dans `main.py`
 
 #### Configuration
-- `pyproject.toml`: métadonnées projet (nom: `otp-exporter`), dépendances, scripts console `otp-export` et `clean-pycache`. Packaging via `setuptools` incluant `OTPTools`, `BackupProcessors` et `tools`.
+- `pyproject.toml`: métadonnées projet (nom: `2fa-exporter`), dépendances, script console `2fa-export`. Packaging via `setuptools` incluant `OTPTools`, `BackupProcessors` et `src`.
 - `requirements.txt`: versions figées pour la prod (Pillow 11.3.0, qrcode 8.2, cryptography 45.0.7) et fallback si `pyproject.toml` absent.
 - `AGENTS.md`: règles et procédures opérationnelles (uv, installation, sync, offline, fallback, outils MCP).
 - Dossiers utilisateur: l'utilisateur définit ses propres dossiers pour les backups et la sortie.
@@ -134,7 +127,6 @@ objets OTP standardisés.
 - Intégration des outils MCP pour diagnostics IDE et exécution de code
 - Implémentation robuste de sanitization des noms de fichiers: `sanitize_filename()` et `generate_safe_filename()` pour gérer caractères interdits, noms réservés Windows, normalisation Unicode, et limitations de longueur. Correction critique pour éviter les erreurs `FileNotFoundError` sur noms problématiques
 
-- Ajout d'un utilitaire de nettoyage: `clean-pycache` (module `tools/`) exposé via `uv run clean-pycache`.
 - Correction des imports de `BackupProcessors` pour référencer `OTPTools` et publication des packages via `pyproject.toml` (`[tool.setuptools.packages.find]`).
 
 ### Statistiques globales (post-refactoring)
@@ -155,18 +147,15 @@ objets OTP standardisés.
   - `uv venv .venv && uv pip install -e .`
   - Alternative: `uv sync` (offline: `uv sync --offline`).
 - Exécution CLI (nouvelles options):
-  - `uv run otp-export <backup_file> [<dossier_sortie>]`
+  - `uv run 2fa-export <backup_file> [<dossier_sortie>]`
   - `uv run python main.py <backup_file> [<dossier_sortie>] [--format] [--verbose] [--list-only]`
   - Exemples:
-    - `uv run otp-export backup.2fas ./exports`
-    - `uv run otp-export backup.2fas --list-only`
-    - `uv run otp-export backup.zip ./exports --verbose --format 2fas`
+    - `uv run 2fa-export backup.2fas ./exports`
+    - `uv run 2fa-export backup.2fas --list-only`
+    - `uv run 2fa-export backup.zip ./exports --verbose --format 2fas`
 - Sauvegardes chiffrées: exécution interactive obligatoire (prompt `getpass`), sinon `CorruptedBackupError` explicite.
-- Maintenance:
-  - `uv run clean-pycache [path] [--pyc] [--include-venv] [-n] [-v]`
 - Lock/CI:
   - `uv sync --frozen` (et `--offline` si nécessaire)
 
 ### Scripts console exposés
-- `otp-export`: lance l’export des QR (`main:main`).
-- `clean-pycache`: nettoyage des caches Python.
+- `2fa-export`: lance l'export des QR (`main:main`).

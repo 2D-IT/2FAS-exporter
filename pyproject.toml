@@ -3,8 +3,8 @@ requires = ["setuptools>=67", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "otp-exporter"
-version = "0.1.0"
+name = "2fa-exporter"
+version = "1.0.0"
 description = "Export QR codes from a 2FAS JSON backup file."
 requires-python = ">=3.8"
 dependencies = [
@@ -16,13 +16,12 @@ readme = "README.md"
 license = { file = "LICENSE" }
 
 [project.scripts]
-otp-export = "main:main"
-clean-pycache = "tools.clean_pycache:clean_pycache_main"
+2fa-exporter = "main:main"
 
 [tool.setuptools]
 py-modules = ["main"]
 
 [tool.setuptools.packages.find]
 # Package the local packages so they are importable after installation
-include = ["OTPTools*", "BackupProcessors*", "tools*", "src*"]
+include = ["OTPTools*", "BackupProcessors*", "src*"]
 exclude = ["tests*"]

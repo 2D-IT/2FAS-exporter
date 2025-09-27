@@ -73,19 +73,19 @@ Script principal: `main.py` (CLI enrichie)
 ### Exécution de base
 ```
 uv run python main.py <backup_file> [<dossier_sortie>]
-uv run otp-export <backup_file> [<dossier_sortie>]
+uv run 2fa-export <backup_file> [<dossier_sortie>]
 ```
 
 ### Options CLI disponibles
 ```
 # Lister les entrées sans générer de QR codes
-uv run otp-export backup.2fas --list-only
+uv run 2fa-export backup.2fas --list-only
 
 # Mode verbeux avec détails
-uv run otp-export backup.2fas ./qrcodes --verbose
+uv run 2fa-export backup.2fas ./qrcodes --verbose
 
 # Forcer le format 2FAS (bypass auto-détection)
-uv run otp-export backup.zip ./qrcodes --format 2fas
+uv run 2fa-export backup.zip ./qrcodes --format 2fas
 
 # Aide complète
 uv run python main.py --help
@@ -95,13 +95,13 @@ uv run python main.py --help
 ```
 # Export standard
 uv run python main.py ~/Downloads/2fas-backup.json ./qrcodes
-uv run otp-export backup.2fas ./exports
+uv run 2fa-export backup.2fas ./exports
 
 # Inspection du contenu avant export
-uv run otp-export backup.2fas --list-only
+uv run 2fa-export backup.2fas --list-only
 
 # Export verbeux d'archive ZIP
-uv run otp-export backup.zip ./exports --verbose --format 2fas
+uv run 2fa-export backup.zip ./exports --verbose --format 2fas
 ```
 
 ### Sauvegardes chiffrées 2FAS
@@ -109,23 +109,6 @@ uv run otp-export backup.zip ./exports --verbose --format 2fas
 - L'exécution doit rester interactive (TTY); en non interactif, une erreur `CorruptedBackupError` signale l'absence de saisie possible.
 - Le mot de passe validé est réutilisé pour les autres fichiers de la même session (JSON ou ZIP contenant plusieurs dumps).
 - La dérivation de clé suit PBKDF2-HMAC-SHA256 (10 000 itérations) puis AES-GCM (lib `cryptography`).
-
-## Utilitaires (maintenance)
-- Nettoyer les dossiers `__pycache__` (et optionnellement les fichiers `.pyc`):
-```
-uv run clean-pycache [path] [--pyc] [--include-venv] [-n] [-v]
-```
-- Exemples:
-```
-# Nettoyer à la racine du dépôt (ignore .venv)
-uv run clean-pycache .
-
-# Simulation + verbose
-uv run clean-pycache -n -v
-
-# Inclure .pyc/.pyo et le dossier .venv
-uv run clean-pycache --pyc --include-venv
-```
 
 ## Gérer les dépendances
 - Ajouter / modifier une dépendance: éditer `pyproject.toml` dans `[project.dependencies]`, puis réinstaller
@@ -191,7 +174,7 @@ Ces outils permettent une meilleure intégration avec l'environnement de dévelo
 
 ### Structure du projet
 ```
-└── 2FAS-exporter/
+└── 2FA-exporter/
     ├── main.py                     # Point d'entrée CLI enrichi
     ├── src/                        # Modules utilitaires
     │   └── utils.py               # Fonctions sanitisation (ex-twofas_lib)
@@ -231,8 +214,7 @@ Tests de validation:
 - **Exécution** : `python tests/test_refactoring.py`
 
 ### Scripts console exposés
-- `otp-export`: lance l'export des QR codes (`main:main`).
-- `clean-pycache`: nettoie les caches Python (`tools.clean_pycache:clean_pycache_main`).
+- `2fa-export`: lance l'export des QR codes (`main:main`).
 
 #### Exemples d'utilisation modules (post-refactoring)
 ```python
@@ -258,7 +240,7 @@ filename = generate_safe_filename("GitHub", "user@example.com")
 ## Références du dépôt (post-refactoring)
 - **Dépendances source** : `pyproject.toml` (`[project.dependencies]`)
 - **Dépendances figées prod** : `requirements.txt` (versions actuelles: Pillow 11.3.0, qrcode 8.2)
-- **Point d'entrée** : `main.py` (script console: `otp-export`) - CLI enrichie
+- **Point d'entrée** : `main.py` (script console: `2fa-export`) - CLI enrichie
 - **Environnement local** : `.venv`
 - **Modules principaux** :
   - `OTPTools/` (core enrichi avec Factory)
